@@ -1,0 +1,11 @@
+{
+  "test1": {
+    "phone_name" : "Nokia Edge",
+    "country" : "India"
+  },
+
+  "test2": {
+    "phone_name" : "Samsung Note 8",
+    "country" : "Denmark"
+  }
+}
