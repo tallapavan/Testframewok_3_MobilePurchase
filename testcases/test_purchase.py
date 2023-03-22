@@ -13,13 +13,13 @@ class TestPurchaseItem(unittest.TestCase):  # unittest.TestCase: is used to run 
 # 1 - Using DDT method
   #   @data(("Nokia Edge", 'India'), ("Samsung Note 8", 'India'))
 # 2 - Using DDT with Json file
-  #   @file_data(r"C:\Users\TallaPavanKumar\Desktop\Python\Selenium\TestFramework3\testdata\testdata_json.json")
+  #   @file_data(r"testdata\testdata_json.json")
 # 3 - Using DDT with Excel file
   #   # Here "*" is used to unpack list data, if its tuple, then no need to use "*"
-  #   @data(*Utils.read_excel_data(r"C:\Users\TallaPavanKumar\Desktop\Python\Selenium\TestFramework3\testdata\excel_data.xlsx", "Sheet1"))
+  #   @data(*Utils.read_excel_data(r"testdata\excel_data.xlsx", "Sheet1"))
 
 # 4 - Using DDT with CSV file
-    @data(*Utils.read_csv_data(r"C:\Users\TallaPavanKumar\Desktop\Python\Selenium\TestFramework3\testdata\testdata_csv.csv"))
+    @data(*Utils.read_csv_data(r"testdata\testdata_csv.csv"))
     @unpack
     def test_purchase_phone(self,phone_name, country ):
         wait = WebDriverWait(self.driver,10)
