@@ -7,6 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 #from webdriver_manager.core import driver
 from webdriver_manager.firefox import GeckoDriverManager
 from utilities.utilis import Utils
+from selenium.webdriver.chrome.options import Options
 
 
 def pytest_addoption(parser):
@@ -24,6 +25,11 @@ def env(request):
 @pytest.fixture(scope="function", autouse= True)
 def setup(browser, env , request):
     log = Utils.custom_logger()
+
+    # Headless
+    # options = Options()
+    # options.add_argument("--headless")
+
     global driver
     if browser == "chrome":
         driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
@@ -38,47 +44,73 @@ def setup(browser, env , request):
         log.error("Enter valid env")
 
     driver.maximize_window()
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(20)
     request.cls.driver = driver
     yield
     driver.close()
 
-@pytest.hookimpl(hookwrapper=True)
+# Method - 1
+@pytest.mark.hookwrapper
 def pytest_runtest_makereport(item):
-    pytest_html = item.config.pluginmanager.getplugin("html")
+    """
+        Extends the PyTest Plugin to take and embed screenshot in html report, whenever test fails.
+        :param item:
+        """
+    pytest_html = item.config.pluginmanager.getplugin('html')
     outcome = yield
     report = outcome.get_result()
-    extra = getattr(report, "extra", [])
-    if report.when == "call":
-        # always add url to report
-        extra.append(pytest_html.extras.url("https://www.google.com/"))
-        xfail = hasattr(report, "wasxfail")
+    extra = getattr(report, 'extra', [])
+
+    if report.when == 'call' or report.when == "setup":
+        xfail = hasattr(report, 'wasxfail')
         if (report.skipped and xfail) or (report.failed and not xfail):
-            # only add additional html on failure
             report_directory = os.path.dirname(item.config.option.htmlpath)
-            file_name = str(int(round(time.time()*1000)))+".png"
-            #file_name = report.nodeid.replace("::","_")+".png"
-            destinationFile = os.path.join(report_directory,file_name)
-            driver.save_screenshot(destinationFile)
+            file_name = str(int(round(time.time() * 1000))) + ".png"
+            # file_name = report.nodeid.replace("::", "_") + ".png"
+            destinationFile = os.path.join(report_directory, file_name)
+            _capture_screenshot(destinationFile)
             if file_name:
-                html = '<div><img src="%s" alt = "screenshot" style = "width:300px; height=200px"' \
-                'onclick = "window.open(this.src)" align = "right"/></div>'%file_name
-            extra.append(pytest_html.extras.html(html))
+                html = '<div><img src="%s" alt="screenshot" style="width:304px;height:228px;" ' \
+                       'onclick="window.open(this.src)" align="right"/></div>' % file_name
+                extra.append(pytest_html.extras.html(html))
         report.extra = extra
 
+def _capture_screenshot(name):
+        # driver.get_screenshot_as_file(name)
+        driver.save_screenshot(name)
 def pytest_html_report_title(report):
     report.title = "TEST REPORT"
 
 
 
 
+# Method - 2
+
+# @pytest.hookimpl(hookwrapper=True)
+# def pytest_runtest_makereport(item):
+#     pytest_html = item.config.pluginmanager.getplugin("html")
+#     outcome = yield
+#     report = outcome.get_result()
+#     extra = getattr(report, "extra", [])
+#     if report.when == "call":
+#         # always add url to report
+#         extra.append(pytest_html.extras.url("https://www.google.com/"))
+#         xfail = hasattr(report, "wasxfail")
+#         if (report.skipped and xfail) or (report.failed and not xfail):
+#             # only add additional html on failure
+#             report_directory = os.path.dirname(item.config.option.htmlpath)
+#             file_name = str(int(round(time.time()*1000)))+".png"
+#             #file_name = report.nodeid.replace("::","_")+".png"
+#             destinationFile = os.path.join(report_directory,file_name)
+#             driver.save_screenshot(destinationFile)
+#             if file_name:
+#                 html = '<div><img src="%s" alt = "screenshot" style = "width:300px; height=200px"' \
+#                 'onclick = "window.open(this.src)" align = "right"/></div>'%file_name
+#             extra.append(pytest_html.extras.html(html))
+#         report.extra = extra
 #
-# @pytest.fixture(autouse=True)
-# def setup(request):
-#     driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
-#     driver.get("https://rahulshettyacademy.com/angularpractice/shop")
-#     # driver.maximize_window()
-#     driver.implicitly_wait(10)
-#     request.cls.driver = driver
-#     yield
-#     driver.close()
+# def pytest_html_report_title(report):
+#     report.title = "TEST REPORT"
+
+
+

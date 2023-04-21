@@ -12,7 +12,7 @@ class Utils():
         logger = logging.getLogger(logger_name)
         logger.setLevel(logging.DEBUG)
         # Step-2
-        file_handler = logging.FileHandler('automation.log', mode= 'w')
+        file_handler = logging.FileHandler('automation.log', mode= 'a')
         # Step-3
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s: %(message)s',
                                       datefmt='%Y-%m-%d %H:%M:%S')
