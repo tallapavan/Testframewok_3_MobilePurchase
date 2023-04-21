@@ -2,3 +2,5 @@
 .pytest_cache/
 *.log
 *__pycache__
+*.png
+*.html
